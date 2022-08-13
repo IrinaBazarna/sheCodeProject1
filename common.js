@@ -17,7 +17,7 @@ let days = [
   "Wensday",
   "Thursday",
   "Friday",
-  "Saturday",
+  "Saturday"
 ];
 let day = days[now.getDay()];
 let Month = [
@@ -31,67 +31,69 @@ let Month = [
   "Augest",
   "Semtrmber",
   "November",
-  "December",
+  "December"
 ];
 let month = Month[now.getMonth()];
 h3.innerHTML = `Today: ${day} ${date} ${month}  ${hours}:${minutes} `;
 
-function showTemperature(response) {
-  document.querySelector("#ciTy").innerHTML = response.data.name;
-  document.querySelector("#temperature").innerHTML = Math.round(
-    response.date.main.temp
-  );
-  document.querySelector("#humidity").innerHTML = response.data.main.humidity;
-  document.querySelector("#wind").innerHTML = Math.round(
-    response.data.main.speed
-  );
-}
-
-let temperature = document.querySelector("#temperature");
-
-function searchCity(city) {
-  let apiKey = "6fd11e5ce241d9d3bdebb9aba9f2f93e";
-  let apiUrl = `https://api.openweathermap.org/data/2.5/weather?${city}lat=35&lon=139&appid=${apiKey}&units=metric`;
-  axios.get(apiUrl).then(showTemperature);
-}
-
-function handleSubmit(event) {
-  event.preventDefault();
-  let city = document.querySelector("#city-input").value;
-  searchCity(city);
-}
-
 function convertToFarenheit(event) {
   event.preventDefault();
-  let GradusNumber = document.querySelector("#number");
-  GradusNumber.innerHTML = `(${temperature}  − 32) × 5/9`;
+  let temperatureElement = document.querySelector("#temperature");
+  let temperature = temperatureElement.innerHTML;
+  temperature = Number(temperature);
+  temperatureElement.innerHTML = Math.round(temperature * 9) / 5 + 32;
 }
 function convertToCelsius(event) {
   event.preventDefault();
-  let GradusNumber = document.querySelector("#number");
-  GradusNumber.innerHTML = `${temperature}`;
+  let temperatureElement = document.querySelector("#temperature");
+  let temperature = 32;
+  temperatureElement.innerHTML = temperature;
 }
-
-let farenheitLink = document.querySelector("#farenheit");
-farenheitLink.addEventListener("click", convertToFarenheit);
-let celsiusLink = document.querySelector("#celsius");
-celsiusLink.addEventListener("click", convertToCelsius);
 
 function showPosition(position) {
   let apiKey = "6fd11e5ce241d9d3bdebb9aba9f2f93e";
   let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${apiKey}&units=metric`;
-  axios.get(apiUrl).then(showTemperature);
+  axios.get(apiUrl).then(showCondition);
   let h2 = document.querySelector("h2");
   h2.innerHTML = `Your latitude is ${position.coords.latitude} and your longitude is ${position.coords.longitude}`;
 }
-
 function getCurrentPosition(event) {
   event.preventDefault();
   navigator.geolocation.getCurrentPosition(showPosition);
 }
 
+function showCondition(response) {
+  document.querySelector("#ciTy").innerHTML = response.data.name;
+  document.querySelector("#temperature").innerHTML = Math.round(
+    response.data.main.temp
+  );
+  document.querySelector("#humidity").innerHTML = response.data.main.humidity;
+  document.querySelector("#wind").innerHTML = Math.round(
+    response.data.wind.speed
+  );
+}
+
+function searchCity(ciTy) {
+  let apiKey = "6fd11e5ce241d9d3bdebb9aba9f2f93e";
+  let units = "metric";
+  let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${ciTy}&appid=${apiKey}&units=${units}`;
+  axios.get(apiUrl).then(showCondition);
+}
+
+function handleSubmit(event) {
+  event.preventDefault();
+  let ciTy = document.querySelector("#city-input").value;
+  searchCity(ciTy);
+}
+
 let searchForm = document.querySelector("#search-form");
 searchForm.addEventListener("submit", handleSubmit);
 
+let farenheitlink = document.querySelector("#farenheit");
+farenheitlink.addEventListener("click", convertToFarenheit);
+let celsiuslink = document.querySelector("#celsius");
+celsiuslink.addEventListener("click", convertToCelsius);
+
 let currentLocatonButton = document.querySelector("#current-location-button");
 currentLocatonButton.addEventListener("click", getCurrentPosition);
+searchCity();
